@@ -1,0 +1,115 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:OmarchyThemeCreator.ViewModels"
+        xmlns:controls="using:OmarchyThemeCreator.Controls"
+        x:Class="OmarchyThemeCreator.Views.ColorPickerDialog"
+        x:DataType="vm:ColorPickerViewModel"
+        SystemDecorations="None"
+        SizeToContent="WidthAndHeight"
+        CanResize="False"
+        WindowStartupLocation="CenterOwner"
+        Background="Transparent"
+        Title="Color Picker">
+
+    <!-- Self-contained dark panel (chrome is fixed, not driven by the app theme). -->
+    <Border Background="#1c1c1c" BorderBrush="#333333" BorderThickness="1" CornerRadius="10">
+        <StackPanel Width="320">
+
+            <!-- Custom titlebar: title + close, draggable. -->
+            <Grid x:Name="TitleBar" Height="36" Background="#242424" PointerPressed="OnTitleBarPressed">
+                <TextBlock Text="Color Picker" Foreground="#e8e8e8" FontWeight="SemiBold"
+                           HorizontalAlignment="Center" VerticalAlignment="Center" />
+                <Button Content="✕" Click="OnCancel" HorizontalAlignment="Right" VerticalAlignment="Center"
+                        Margin="0,0,4,0" Padding="8,2" Background="Transparent" BorderThickness="0"
+                        Foreground="#c8c8c8" />
+            </Grid>
+
+            <StackPanel Margin="16" Spacing="14">
+
+                <controls:ColorWheel Width="280" Height="280" HorizontalAlignment="Center"
+                                     HsvColor="{Binding Hsv, Mode=TwoWay}" />
+
+                <!-- Before/after swatch + eyedropper. -->
+                <Grid ColumnDefinitions="Auto,*,Auto">
+                    <Border Grid.Column="0" Width="96" Height="28" CornerRadius="6" ClipToBounds="True"
+                            BorderBrush="#333333" BorderThickness="1">
+                        <Grid ColumnDefinitions="*,*">
+                            <Border Grid.Column="0" Background="{Binding OriginalBrush}" />
+                            <Border Grid.Column="1" Background="{Binding CurrentBrush}" />
+                        </Grid>
+                    </Border>
+                    <Button Grid.Column="2" Content="Pick" Command="{Binding EyedropperCommand}"
+                            IsVisible="{Binding IsEyedropperAvailable}"
+                            ToolTip.Tip="Pick a color from anywhere on screen" />
+                </Grid>
+
+                <!-- Hex. -->
+                <Grid ColumnDefinitions="24,*">
+                    <TextBlock Grid.Column="0" Text="#" VerticalAlignment="Center" Foreground="#c8c8c8" />
+                    <TextBox Grid.Column="1" Text="{Binding Hex}" FontFamily="monospace" />
+                </Grid>
+
+                <!-- HSB / RGB / CMYK columns. -->
+                <Grid ColumnDefinitions="*,*,*">
+                    <!-- HSB (editable) -->
+                    <StackPanel Grid.Column="0" Spacing="4" Margin="0,0,6,0">
+                        <Grid ColumnDefinitions="18,*">
+                            <TextBlock Text="H" VerticalAlignment="Center" Foreground="#c8c8c8" />
+                            <TextBox Grid.Column="1" Text="{Binding HueDeg}" />
+                        </Grid>
+                        <Grid ColumnDefinitions="18,*">
+                            <TextBlock Text="S" VerticalAlignment="Center" Foreground="#c8c8c8" />
+                            <TextBox Grid.Column="1" Text="{Binding SatPct}" />
+                        </Grid>
+                        <Grid ColumnDefinitions="18,*">
+                            <TextBlock Text="B" VerticalAlignment="Center" Foreground="#c8c8c8" />
+                            <TextBox Grid.Column="1" Text="{Binding BriPct}" />
+                        </Grid>
+                    </StackPanel>
+
+                    <!-- RGB (editable) -->
+                    <StackPanel Grid.Column="1" Spacing="4" Margin="3,0,3,0">
+                        <Grid ColumnDefinitions="18,*">
+                            <TextBlock Text="R" VerticalAlignment="Center" Foreground="#c8c8c8" />
+                            <TextBox Grid.Column="1" Text="{Binding R}" />
+                        </Grid>
+                        <Grid ColumnDefinitions="18,*">
+                            <TextBlock Text="G" VerticalAlignment="Center" Foreground="#c8c8c8" />
+                            <TextBox Grid.Column="1" Text="{Binding G}" />
+                        </Grid>
+                        <Grid ColumnDefinitions="18,*">
+                            <TextBlock Text="B" VerticalAlignment="Center" Foreground="#c8c8c8" />
+                            <TextBox Grid.Column="1" Text="{Binding B}" />
+                        </Grid>
+                    </StackPanel>
+
+                    <!-- CMYK (read-only readout) -->
+                    <StackPanel Grid.Column="2" Spacing="4" Margin="6,0,0,0">
+                        <Grid ColumnDefinitions="18,*">
+                            <TextBlock Text="C" VerticalAlignment="Center" Foreground="#c8c8c8" />
+                            <TextBlock Grid.Column="1" Text="{Binding Cyan}" VerticalAlignment="Center" />
+                        </Grid>
+                        <Grid ColumnDefinitions="18,*">
+                            <TextBlock Text="M" VerticalAlignment="Center" Foreground="#c8c8c8" />
+                            <TextBlock Grid.Column="1" Text="{Binding Magenta}" VerticalAlignment="Center" />
+                        </Grid>
+                        <Grid ColumnDefinitions="18,*">
+                            <TextBlock Text="Y" VerticalAlignment="Center" Foreground="#c8c8c8" />
+                            <TextBlock Grid.Column="1" Text="{Binding Yellow}" VerticalAlignment="Center" />
+                        </Grid>
+                        <Grid ColumnDefinitions="18,*">
+                            <TextBlock Text="K" VerticalAlignment="Center" Foreground="#c8c8c8" />
+                            <TextBlock Grid.Column="1" Text="{Binding Black}" VerticalAlignment="Center" />
+                        </Grid>
+                    </StackPanel>
+                </Grid>
+
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8">
+                    <Button Content="Cancel" Click="OnCancel" />
+                    <Button Content="OK" Click="OnConfirm" IsDefault="True"
+                            Foreground="#ffffff" Background="#3a6ea5" />
+                </StackPanel>
+            </StackPanel>
+        </StackPanel>
+    </Border>
+</Window>

@@ -1,0 +1,606 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:OmarchyThemeCreator.ViewModels"
+        x:Class="OmarchyThemeCreator.Views.MainWindow"
+        x:DataType="vm:MainWindowViewModel"
+        x:CompileBindings="False"
+        Width="1180" Height="760"
+        MinWidth="900" MinHeight="600"
+        Background="{DynamicResource AppBackgroundBrush}"
+        Title="Omarchy Theme Creator">
+
+    <DockPanel TextElement.Foreground="{DynamicResource AppForegroundBrush}">
+        <!-- Status bar -->
+        <Border DockPanel.Dock="Bottom" Background="{DynamicResource AppSurfaceAltBrush}" Padding="10,6">
+            <TextBlock Text="{Binding StatusText}" Foreground="{DynamicResource AppMutedBrush}" FontSize="12"
+                       TextTrimming="CharacterEllipsis" />
+        </Border>
+
+        <Grid ColumnDefinitions="270,*,380" Margin="8">
+
+            <!-- ===================== Left: theme list ===================== -->
+            <Border Grid.Column="0" Background="{DynamicResource AppSurfaceBrush}" CornerRadius="6" Padding="10" Margin="0,0,8,0">
+                <DockPanel>
+                    <TextBlock DockPanel.Dock="Top" Text="Themes" FontWeight="Bold"
+                               FontSize="15" Margin="0,0,0,8" />
+
+                    <StackPanel DockPanel.Dock="Bottom" Spacing="6" Margin="0,8,0,0">
+                        <Button Content="＋ New theme" HorizontalAlignment="Stretch"
+                                Command="{Binding NewThemeCommand}" />
+                        <Grid ColumnDefinitions="*,6,*,6,*">
+                            <Button Grid.Column="0" Content="Open" HorizontalAlignment="Stretch"
+                                    Command="{Binding OpenSelectedCommand}" />
+                            <Button Grid.Column="2" Content="Clone" HorizontalAlignment="Stretch"
+                                    Command="{Binding CloneSelectedCommand}" />
+                            <Button Grid.Column="4" Content="Delete" HorizontalAlignment="Stretch"
+                                    Foreground="{DynamicResource AppDangerBrush}"
+                                    Command="{Binding DeleteSelectedCommand}" />
+                        </Grid>
+                    </StackPanel>
+
+                    <ListBox ItemsSource="{Binding Themes}"
+                             SelectedItem="{Binding SelectedTheme}"
+                             DoubleTapped="OnThemeDoubleTapped">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                    <TextBlock Text="{Binding DisplayName}" />
+                                    <TextBlock Text="built-in" FontSize="10" Foreground="{DynamicResource AppMutedBrush}"
+                                               VerticalAlignment="Center"
+                                               IsVisible="{Binding IsBuiltIn}" />
+                                </StackPanel>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                </DockPanel>
+            </Border>
+
+            <!-- ===================== Center: color editor ===================== -->
+            <Border Grid.Column="1" Background="{DynamicResource AppSurfaceBrush}" CornerRadius="6" Padding="12" Margin="0,0,8,0">
+                <DockPanel>
+                    <StackPanel DockPanel.Dock="Top" Spacing="8" Margin="0,0,0,10">
+                        <Grid ColumnDefinitions="70,260,20,70,260" VerticalAlignment="Center">
+                            <TextBlock Grid.Column="0" Text="Name" VerticalAlignment="Center" />
+                            <TextBox Grid.Column="1" Text="{Binding ThemeName}"
+                                     Watermark="my-theme" />
+
+                            <TextBlock Grid.Column="3" Text="Icons" VerticalAlignment="Center" />
+                            <Grid Grid.Column="4" ColumnDefinitions="*,Auto">
+                                <ComboBox Grid.Column="0" HorizontalAlignment="Stretch"
+                                          ItemsSource="{Binding IconThemes}"
+                                          SelectedItem="{Binding SelectedIconTheme}"
+                                          PlaceholderText="(none)" />
+                                <!-- Example icon from the selected pack, so you can eyeball its look. -->
+                                <Border Grid.Column="1" Width="28" Height="28" Margin="6,0,0,0"
+                                        CornerRadius="4" Background="{DynamicResource AppSurfaceBrush}"
+                                        ToolTip.Tip="Example icon from this pack">
+                                    <Image Source="{Binding IconPreview}" Stretch="Uniform" Margin="3" />
+                                </Border>
+                            </Grid>
+                        </Grid>
+                    </StackPanel>
+
+                    <TabControl SelectedIndex="{Binding SelectedTabIndex}">
+                        <!-- ============ Palette tab ============ -->
+                        <TabItem Header="Palette">
+                            <DockPanel>
+                                <!-- Contrast readout -->
+                                <Border DockPanel.Dock="Bottom" Background="{DynamicResource AppSurfaceAltBrush}" CornerRadius="6"
+                                        Padding="8" Margin="0,8,0,0">
+                                    <StackPanel Spacing="4">
+                                        <TextBlock Text="WCAG contrast" FontWeight="Bold" FontSize="12" />
+                                        <ItemsControl ItemsSource="{Binding Contrast.Rows}">
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate>
+                                                    <Grid ColumnDefinitions="*,60,70" Margin="0,2">
+                                                        <TextBlock Grid.Column="0" Text="{Binding Label}"
+                                                                   FontSize="11" VerticalAlignment="Center" />
+                                                        <TextBlock Grid.Column="1" Text="{Binding Ratio}"
+                                                                   FontSize="11" FontFamily="monospace"
+                                                                   VerticalAlignment="Center" />
+                                                        <Border Grid.Column="2" CornerRadius="3" Padding="4,1"
+                                                                Background="{Binding GradeBrush}">
+                                                            <TextBlock Text="{Binding Grade}" FontSize="10"
+                                                                       Foreground="#111" HorizontalAlignment="Center" />
+                                                        </Border>
+                                                    </Grid>
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+                                    </StackPanel>
+                                </Border>
+
+                                <ScrollViewer>
+                                    <ItemsControl ItemsSource="{Binding Colors}">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate x:DataType="vm:ColorField">
+                                                <Grid ColumnDefinitions="120,40,140" Margin="0,3"
+                                                      VerticalAlignment="Center">
+                                                    <TextBlock Grid.Column="0" Text="{Binding Label}"
+                                                               VerticalAlignment="Center" />
+                                                    <!-- Swatch doubles as the trigger for the color-picker dialog. -->
+                                                    <Button Grid.Column="1" Padding="0" Background="Transparent"
+                                                            BorderThickness="0" Cursor="Hand"
+                                                            ToolTip.Tip="Click to edit color"
+                                                            Command="{Binding $parent[Window].DataContext.EditColorCommand}"
+                                                            CommandParameter="{Binding}">
+                                                        <Border Width="26" Height="26" CornerRadius="4"
+                                                                BorderBrush="{DynamicResource AppBorderBrush}" BorderThickness="1"
+                                                                Background="{Binding Color, Converter={StaticResource ColorToBrush}}" />
+                                                    </Button>
+                                                    <TextBox Grid.Column="2" Text="{Binding Hex}" Margin="8,0"
+                                                             FontFamily="monospace" />
+                                                </Grid>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </ScrollViewer>
+                            </DockPanel>
+                        </TabItem>
+
+                        <!-- ============ Extract tab ============ -->
+                        <TabItem Header="Extract">
+                            <ScrollViewer>
+                                <StackPanel Spacing="8" Margin="0,4">
+                                    <TextBlock Text="Generate a palette from a wallpaper"
+                                               FontWeight="Bold" FontSize="13" />
+                                    <Grid ColumnDefinitions="*,6,*">
+                                        <Button Grid.Column="0" Content="Choose wallpaper…"
+                                                HorizontalAlignment="Stretch"
+                                                Command="{Binding Extract.PickWallpaperCommand}" />
+                                        <Button Grid.Column="2" Content="Use as background"
+                                                HorizontalAlignment="Stretch"
+                                                Command="{Binding Extract.UseAsBackgroundCommand}" />
+                                    </Grid>
+                                    <Image Source="{Binding Extract.WallpaperThumb}" MaxHeight="150"
+                                           Stretch="Uniform" HorizontalAlignment="Left" />
+
+                                    <StackPanel Orientation="Horizontal" Spacing="8">
+                                        <TextBlock Text="Mode" Width="80" VerticalAlignment="Center" />
+                                        <ComboBox ItemsSource="{Binding Extract.Modes}"
+                                                  SelectedItem="{Binding Extract.Mode}" Width="200" />
+                                    </StackPanel>
+                                    <CheckBox Content="Light mode (swap anchors)"
+                                              IsChecked="{Binding Extract.LightMode}" />
+
+                                    <TextBlock Text="Fine-tuning" FontWeight="Bold" FontSize="12" Margin="0,4,0,0" />
+                                    <Grid ColumnDefinitions="90,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto">
+                                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Vibrance" VerticalAlignment="Center" />
+                                        <Slider Grid.Row="0" Grid.Column="1" Minimum="-1" Maximum="1"
+                                                Value="{Binding Extract.Vibrance}" />
+                                        <TextBlock Grid.Row="1" Grid.Column="0" Text="Saturation" VerticalAlignment="Center" />
+                                        <Slider Grid.Row="1" Grid.Column="1" Minimum="0" Maximum="2"
+                                                Value="{Binding Extract.Saturation}" />
+                                        <TextBlock Grid.Row="2" Grid.Column="0" Text="Contrast" VerticalAlignment="Center" />
+                                        <Slider Grid.Row="2" Grid.Column="1" Minimum="-1" Maximum="1"
+                                                Value="{Binding Extract.Contrast}" />
+                                        <TextBlock Grid.Row="3" Grid.Column="0" Text="Brightness" VerticalAlignment="Center" />
+                                        <Slider Grid.Row="3" Grid.Column="1" Minimum="0.5" Maximum="1.5"
+                                                Value="{Binding Extract.Brightness}" />
+                                        <TextBlock Grid.Row="4" Grid.Column="0" Text="Temperature" VerticalAlignment="Center" />
+                                        <Slider Grid.Row="4" Grid.Column="1" Minimum="-1" Maximum="1"
+                                                Value="{Binding Extract.Temperature}" />
+                                        <TextBlock Grid.Row="5" Grid.Column="0" Text="Shadows" VerticalAlignment="Center" />
+                                        <Slider Grid.Row="5" Grid.Column="1" Minimum="-1" Maximum="1"
+                                                Value="{Binding Extract.Shadows}" />
+                                        <TextBlock Grid.Row="6" Grid.Column="0" Text="Highlights" VerticalAlignment="Center" />
+                                        <Slider Grid.Row="6" Grid.Column="1" Minimum="-1" Maximum="1"
+                                                Value="{Binding Extract.Highlights}" />
+                                    </Grid>
+                                    <Button Content="Re-extract" HorizontalAlignment="Stretch"
+                                            Command="{Binding Extract.ExtractCommand}" />
+                                </StackPanel>
+                            </ScrollViewer>
+                        </TabItem>
+
+                        <!-- ============ Presets tab ============ -->
+                        <TabItem Header="Presets">
+                            <DockPanel>
+                                <Grid DockPanel.Dock="Bottom" ColumnDefinitions="*,6,*" Margin="0,8,0,0">
+                                    <Button Grid.Column="0" Content="Apply preset" HorizontalAlignment="Stretch"
+                                            Command="{Binding Presets.ApplyCommand}" />
+                                    <Button Grid.Column="2" Content="Import Base16…" HorizontalAlignment="Stretch"
+                                            Command="{Binding Presets.ImportBase16Command}" />
+                                </Grid>
+                                <ListBox ItemsSource="{Binding Presets.Items}"
+                                         SelectedItem="{Binding Presets.Selected}"
+                                         DoubleTapped="OnPresetDoubleTapped">
+                                    <ListBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <StackPanel Spacing="4" Margin="0,3">
+                                                <TextBlock Text="{Binding Name}" FontSize="12" />
+                                                <ItemsControl ItemsSource="{Binding Swatches}">
+                                                    <ItemsControl.ItemsPanel>
+                                                        <ItemsPanelTemplate>
+                                                            <StackPanel Orientation="Horizontal" Spacing="2" />
+                                                        </ItemsPanelTemplate>
+                                                    </ItemsControl.ItemsPanel>
+                                                    <ItemsControl.ItemTemplate>
+                                                        <DataTemplate>
+                                                            <Border Width="20" Height="14" CornerRadius="2"
+                                                                    Background="{Binding}" />
+                                                        </DataTemplate>
+                                                    </ItemsControl.ItemTemplate>
+                                                </ItemsControl>
+                                            </StackPanel>
+                                        </DataTemplate>
+                                    </ListBox.ItemTemplate>
+                                </ListBox>
+                            </DockPanel>
+                        </TabItem>
+
+                        <!-- ============ Wallpaper tab ============ -->
+                        <TabItem Header="Wallpaper">
+                            <ScrollViewer>
+                                <StackPanel Spacing="8" Margin="0,4">
+                                    <TextBlock Text="Browse wallhaven.cc" FontWeight="Bold" FontSize="13" />
+                                    <Grid ColumnDefinitions="*,Auto">
+                                        <TextBox Grid.Column="0" Text="{Binding Wallpaper.SearchQuery}"
+                                                 Watermark="e.g. mountains, abstract…" Margin="0,0,6,0" />
+                                        <Button Grid.Column="1" Content="Search"
+                                                Command="{Binding Wallpaper.SearchCommand}" />
+                                    </Grid>
+
+                                    <Expander Header="Filters" IsExpanded="True">
+                                        <StackPanel Spacing="8" Margin="0,4">
+                                            <TextBlock Text="Content" FontWeight="Bold" FontSize="11" Foreground="{DynamicResource AppMutedBrush}" />
+                                            <WrapPanel>
+                                                <CheckBox Content="SFW" IsChecked="{Binding Wallpaper.Sfw}" Margin="0,0,10,0" />
+                                                <CheckBox Content="Risky" IsChecked="{Binding Wallpaper.Sketchy}" Margin="0,0,10,0" />
+                                                <CheckBox Content="NSFW" IsChecked="{Binding Wallpaper.Nsfw}"
+                                                          IsEnabled="{Binding Wallpaper.NsfwAvailable}" />
+                                            </WrapPanel>
+
+                                            <TextBlock Text="Categories" FontWeight="Bold" FontSize="11" Foreground="{DynamicResource AppMutedBrush}" />
+                                            <WrapPanel>
+                                                <CheckBox Content="General" IsChecked="{Binding Wallpaper.General}" Margin="0,0,10,0" />
+                                                <CheckBox Content="Anime" IsChecked="{Binding Wallpaper.Anime}" Margin="0,0,10,0" />
+                                                <CheckBox Content="People" IsChecked="{Binding Wallpaper.People}" />
+                                            </WrapPanel>
+
+                                            <Grid ColumnDefinitions="90,*" RowDefinitions="Auto,Auto,Auto">
+                                                <TextBlock Grid.Row="0" Grid.Column="0" Text="Sort by" VerticalAlignment="Center" Margin="0,3" />
+                                                <ComboBox Grid.Row="0" Grid.Column="1" HorizontalAlignment="Stretch" Margin="0,3"
+                                                          ItemsSource="{Binding Wallpaper.SortOptions}"
+                                                          SelectedItem="{Binding Wallpaper.Sorting}" />
+                                                <TextBlock Grid.Row="1" Grid.Column="0" Text="Min res" VerticalAlignment="Center" Margin="0,3" />
+                                                <ComboBox Grid.Row="1" Grid.Column="1" HorizontalAlignment="Stretch" Margin="0,3"
+                                                          ItemsSource="{Binding Wallpaper.ResolutionOptions}"
+                                                          SelectedItem="{Binding Wallpaper.AtLeastResolution}" />
+                                                <TextBlock Grid.Row="2" Grid.Column="0" Text="Ratio" VerticalAlignment="Top" Margin="0,6" />
+                                                <ItemsControl Grid.Row="2" Grid.Column="1" Margin="0,3"
+                                                              ItemsSource="{Binding Wallpaper.RatioOptions}">
+                                                    <ItemsControl.ItemsPanel>
+                                                        <ItemsPanelTemplate>
+                                                            <WrapPanel />
+                                                        </ItemsPanelTemplate>
+                                                    </ItemsControl.ItemsPanel>
+                                                    <ItemsControl.ItemTemplate>
+                                                        <DataTemplate>
+                                                            <CheckBox Content="{Binding Label}" IsChecked="{Binding IsSelected}"
+                                                                      Margin="0,0,10,0" />
+                                                        </DataTemplate>
+                                                    </ItemsControl.ItemTemplate>
+                                                </ItemsControl>
+                                            </Grid>
+
+                                            <TextBlock Text="Colors" FontWeight="Bold" FontSize="11"
+                                                       Foreground="{DynamicResource AppMutedBrush}" VerticalAlignment="Center" />
+                                            <CheckBox Content="Match current theme's colors" FontSize="11"
+                                                      IsChecked="{Binding Wallpaper.MatchTheme}"
+                                                      ToolTip.Tip="Analyze each wallpaper and keep the ones whose colors match your theme palette." />
+                                            <TextBlock FontSize="11" Foreground="{DynamicResource AppMutedBrush}" TextWrapping="Wrap"
+                                                       Text="Or tick one or more colors below. Results are analyzed so only wallpapers containing every ticked color are kept." />
+                                            <ItemsControl ItemsSource="{Binding Wallpaper.ColorSwatches}">
+                                                <ItemsControl.ItemsPanel>
+                                                    <ItemsPanelTemplate>
+                                                        <WrapPanel />
+                                                    </ItemsPanelTemplate>
+                                                </ItemsControl.ItemsPanel>
+                                                <ItemsControl.ItemTemplate>
+                                                    <DataTemplate>
+                                                        <Border BorderThickness="2" CornerRadius="3" Padding="2" Margin="1"
+                                                                BorderBrush="{Binding IsSelected, Converter={StaticResource SwatchSelectionBrush}}">
+                                                            <Button Width="20" Height="20" Padding="0"
+                                                                    Background="{Binding Value, Converter={StaticResource HexToBrush}}"
+                                                                    Command="{Binding $parent[TabItem].DataContext.Wallpaper.SelectColorCommand}"
+                                                                    CommandParameter="{Binding}" />
+                                                        </Border>
+                                                    </DataTemplate>
+                                                </ItemsControl.ItemTemplate>
+                                            </ItemsControl>
+                                            <CheckBox Content="Keep only wallpapers matching all ticked colors" FontSize="11"
+                                                      IsChecked="{Binding Wallpaper.MatchesOnly}" />
+
+                                            <Expander Header="wallhaven account (for NSFW)">
+                                                <StackPanel Spacing="6" Margin="0,4">
+                                                    <TextBlock FontSize="11" Foreground="{DynamicResource AppMutedBrush}" TextWrapping="Wrap"
+                                                               Text="NSFW results require a personal wallhaven API key (Settings → Account on wallhaven.cc)." />
+                                                    <Grid ColumnDefinitions="*,Auto">
+                                                        <TextBox Grid.Column="0" PasswordChar="•" Margin="0,0,6,0"
+                                                                 Text="{Binding Wallpaper.ApiKey}"
+                                                                 Watermark="API key" />
+                                                        <Button Grid.Column="1" Content="Save"
+                                                                Command="{Binding Wallpaper.SaveApiKeyCommand}" />
+                                                    </Grid>
+                                                </StackPanel>
+                                            </Expander>
+                                        </StackPanel>
+                                    </Expander>
+
+                                    <Expander Header="Wallpaper viewer" IsExpanded="{Binding Wallpaper.ResultsExpanded, Mode=TwoWay}">
+                                        <StackPanel Spacing="8" Margin="0,4">
+                                            <!-- Thumbnail size control: drag to enlarge the result images. -->
+                                            <Grid ColumnDefinitions="Auto,*,Auto">
+                                                <TextBlock Grid.Column="0" Text="Image size" VerticalAlignment="Center"
+                                                           Margin="0,0,8,0" />
+                                                <Slider Grid.Column="1" Minimum="80" Maximum="360"
+                                                        Value="{Binding Wallpaper.ThumbnailSize, Mode=TwoWay}" />
+                                                <TextBlock Grid.Column="2" VerticalAlignment="Center" Margin="8,0,0,0"
+                                                           Text="{Binding Wallpaper.ThumbnailSize, StringFormat={}{0:F0}px}" />
+                                            </Grid>
+                                            <ListBox ItemsSource="{Binding Wallpaper.Results}"
+                                                     SelectionMode="Multiple,Toggle"
+                                                     SelectedItem="{Binding Wallpaper.SelectedResult}">
+                                                <ListBox.Styles>
+                                                    <!-- Two-way bind each container's selection to the item's IsSelected
+                                                         so the VM can enumerate the ticked wallpapers. -->
+                                                    <Style Selector="ListBoxItem">
+                                                        <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}" />
+                                                    </Style>
+                                                </ListBox.Styles>
+                                                <ItemsControl.ItemsPanel>
+                                                    <ItemsPanelTemplate>
+                                                        <WrapPanel />
+                                                    </ItemsPanelTemplate>
+                                                </ItemsControl.ItemsPanel>
+                                                <ListBox.ItemTemplate>
+                                                    <DataTemplate>
+                                                        <Image Source="{Binding Thumb}"
+                                                               Width="{Binding $parent[ListBox].DataContext.Wallpaper.ThumbnailSize}"
+                                                               Height="{Binding $parent[ListBox].DataContext.Wallpaper.ThumbnailHeight}"
+                                                               Stretch="UniformToFill" Margin="2" />
+                                                    </DataTemplate>
+                                                </ListBox.ItemTemplate>
+                                            </ListBox>
+                                            <Button Content="Load more" HorizontalAlignment="Stretch"
+                                                    IsVisible="{Binding Wallpaper.CanLoadMore}"
+                                                    Command="{Binding Wallpaper.LoadMoreCommand}" />
+                                            <Button Content="Download selected" HorizontalAlignment="Stretch"
+                                                    Command="{Binding Wallpaper.DownloadCommand}" />
+                                            <Button Content="Add selected to theme" HorizontalAlignment="Stretch"
+                                                    Command="{Binding Wallpaper.AddSelectedToThemeCommand}" />
+                                        </StackPanel>
+                                    </Expander>
+
+                                    <Expander Header="Image editor" IsExpanded="{Binding Wallpaper.EditorExpanded, Mode=TwoWay}">
+                                        <StackPanel Spacing="8" Margin="0,4">
+                                            <Button Content="Open image…" HorizontalAlignment="Stretch"
+                                                    Command="{Binding Wallpaper.PickImageCommand}" />
+                                            <!-- Fixed-footprint preview: the box always spans the pane
+                                                 width and keeps a constant height, letterboxing whatever
+                                                 image is loaded rather than resizing to it. -->
+                                            <Border Height="180" HorizontalAlignment="Stretch"
+                                                    Background="{DynamicResource AppSurfaceBrush}" CornerRadius="4">
+                                                <Image Source="{Binding Wallpaper.EditedPreview}"
+                                                       Stretch="Uniform" Margin="4" />
+                                            </Border>
+                                            <ItemsControl ItemsSource="{Binding Wallpaper.PresetNames}">
+                                                <ItemsControl.ItemsPanel>
+                                                    <ItemsPanelTemplate>
+                                                        <WrapPanel />
+                                                    </ItemsPanelTemplate>
+                                                </ItemsControl.ItemsPanel>
+                                                <ItemsControl.ItemTemplate>
+                                                    <DataTemplate>
+                                                        <Button Content="{Binding}" Margin="2" FontSize="11"
+                                                                Command="{Binding $parent[TabItem].DataContext.Wallpaper.ApplyPresetCommand}"
+                                                                CommandParameter="{Binding}" />
+                                                    </DataTemplate>
+                                                </ItemsControl.ItemTemplate>
+                                            </ItemsControl>
+                                            <Grid ColumnDefinitions="90,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto">
+                                                <TextBlock Grid.Row="0" Grid.Column="0" Text="Brightness" VerticalAlignment="Center" />
+                                                <Slider Grid.Row="0" Grid.Column="1" Minimum="0.3" Maximum="2"
+                                                        Value="{Binding Wallpaper.Brightness}" />
+                                                <TextBlock Grid.Row="1" Grid.Column="0" Text="Contrast" VerticalAlignment="Center" />
+                                                <Slider Grid.Row="1" Grid.Column="1" Minimum="0.3" Maximum="2"
+                                                        Value="{Binding Wallpaper.Contrast}" />
+                                                <TextBlock Grid.Row="2" Grid.Column="0" Text="Saturation" VerticalAlignment="Center" />
+                                                <Slider Grid.Row="2" Grid.Column="1" Minimum="0" Maximum="2"
+                                                        Value="{Binding Wallpaper.Saturation}" />
+                                                <TextBlock Grid.Row="3" Grid.Column="0" Text="Blur" VerticalAlignment="Center" />
+                                                <Slider Grid.Row="3" Grid.Column="1" Minimum="0" Maximum="10"
+                                                        Value="{Binding Wallpaper.Blur}" />
+                                                <TextBlock Grid.Row="4" Grid.Column="0" Text="Vignette" VerticalAlignment="Center" />
+                                                <Slider Grid.Row="4" Grid.Column="1" Minimum="0" Maximum="1"
+                                                        Value="{Binding Wallpaper.Vignette}" />
+                                                <TextBlock Grid.Row="5" Grid.Column="0" Text="Grain" VerticalAlignment="Center" />
+                                                <Slider Grid.Row="5" Grid.Column="1" Minimum="0" Maximum="1"
+                                                        Value="{Binding Wallpaper.Grain}" />
+                                            </Grid>
+                                            <Grid ColumnDefinitions="*,6,*">
+                                                <Button Grid.Column="0" Content="Render" HorizontalAlignment="Stretch"
+                                                        Command="{Binding Wallpaper.RenderCommand}" />
+                                                <Button Grid.Column="2" Content="Save to backgrounds"
+                                                        HorizontalAlignment="Stretch"
+                                                        Command="{Binding Wallpaper.SaveToBackgroundsCommand}" />
+                                            </Grid>
+                                        </StackPanel>
+                                    </Expander>
+                                </StackPanel>
+                            </ScrollViewer>
+                        </TabItem>
+
+                        <!-- ============ Current Wallpapers tab ============ -->
+                        <TabItem Header="Current Wallpapers">
+                            <DockPanel Margin="0,4">
+                                <StackPanel DockPanel.Dock="Top" Margin="0,0,0,8" Spacing="2">
+                                    <TextBlock Text="Wallpapers in this theme"
+                                               FontWeight="Bold" FontSize="13" />
+                                    <TextBlock Text="Use ↑ / ↓ to reorder. The top wallpaper is the default the Omarchy switcher starts on."
+                                               FontSize="11" TextWrapping="Wrap"
+                                               Foreground="{DynamicResource AppMutedBrush}" />
+                                </StackPanel>
+                                <Grid DockPanel.Dock="Bottom" Margin="0,8,0,0" ColumnDefinitions="*,6,Auto">
+                                    <Button Grid.Column="0" Content="Add…" HorizontalAlignment="Stretch"
+                                            Command="{Binding CurrentWallpapers.AddCommand}" />
+                                    <Button Grid.Column="2" Content="Purge all…"
+                                            Command="{Binding CurrentWallpapers.PurgeAllCommand}"
+                                            IsEnabled="{Binding !CurrentWallpapers.IsEmpty}" />
+                                </Grid>
+                                <TextBlock DockPanel.Dock="Bottom" Margin="0,8,0,0" TextWrapping="Wrap"
+                                           FontSize="12" Foreground="{DynamicResource AppMutedBrush}"
+                                           IsVisible="{Binding CurrentWallpapers.IsEmpty}"
+                                           Text="No wallpapers yet. Save the theme, then add backgrounds here or from the Wallpaper tab." />
+                                <ListBox ItemsSource="{Binding CurrentWallpapers.Items}"
+                                         SelectedItem="{Binding CurrentWallpapers.Selected}">
+                                    <ListBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <Grid ColumnDefinitions="Auto,*,Auto" Margin="0,2">
+                                                <Border Grid.Column="0" Width="96" Height="64" CornerRadius="4"
+                                                        Background="{DynamicResource AppSurfaceBrush}" ClipToBounds="True">
+                                                    <Image Source="{Binding Thumb}" Stretch="UniformToFill" />
+                                                </Border>
+                                                <StackPanel Grid.Column="1" VerticalAlignment="Center"
+                                                            Margin="10,0" Spacing="1">
+                                                    <StackPanel Orientation="Horizontal" Spacing="6">
+                                                        <TextBlock Text="{Binding DisplayName}" FontSize="13"
+                                                                   FontWeight="SemiBold" TextWrapping="Wrap"
+                                                                   VerticalAlignment="Center" />
+                                                        <Border Background="{DynamicResource AppAccentBrush}"
+                                                                CornerRadius="3" Padding="5,1" VerticalAlignment="Center"
+                                                                IsVisible="{Binding IsDefault}">
+                                                            <TextBlock Text="Default" FontSize="10"
+                                                                       Foreground="{DynamicResource AppAccentForegroundBrush}" />
+                                                        </Border>
+                                                    </StackPanel>
+                                                    <TextBlock Text="{Binding FileName}" FontSize="11"
+                                                               Foreground="{DynamicResource AppMutedBrush}"
+                                                               TextWrapping="Wrap" />
+                                                </StackPanel>
+                                                <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="4"
+                                                            VerticalAlignment="Center">
+                                                    <Button Content="↑" FontSize="11" ToolTip.Tip="Move up"
+                                                            Command="{Binding $parent[ListBox].DataContext.CurrentWallpapers.MoveUpCommand}"
+                                                            CommandParameter="{Binding}" />
+                                                    <Button Content="↓" FontSize="11" ToolTip.Tip="Move down"
+                                                            Command="{Binding $parent[ListBox].DataContext.CurrentWallpapers.MoveDownCommand}"
+                                                            CommandParameter="{Binding}" />
+                                                    <Button Content="Preview" FontSize="11"
+                                                            Command="{Binding $parent[ListBox].DataContext.CurrentWallpapers.PreviewCommand}"
+                                                            CommandParameter="{Binding}" />
+                                                    <Button Content="Rename" FontSize="11"
+                                                            Command="{Binding $parent[ListBox].DataContext.CurrentWallpapers.RenameCommand}"
+                                                            CommandParameter="{Binding}" />
+                                                    <Button Content="Edit" FontSize="11"
+                                                            Command="{Binding $parent[ListBox].DataContext.CurrentWallpapers.EditCommand}"
+                                                            CommandParameter="{Binding}" />
+                                                    <Button Content="Remove" FontSize="11"
+                                                            Command="{Binding $parent[ListBox].DataContext.CurrentWallpapers.RemoveCommand}"
+                                                            CommandParameter="{Binding}" />
+                                                </StackPanel>
+                                            </Grid>
+                                        </DataTemplate>
+                                    </ListBox.ItemTemplate>
+                                </ListBox>
+                            </DockPanel>
+                        </TabItem>
+                    </TabControl>
+                </DockPanel>
+            </Border>
+
+            <!-- ===================== Right: preview + actions ===================== -->
+            <Border Grid.Column="2" Background="{DynamicResource AppSurfaceBrush}" CornerRadius="6" Padding="12">
+                <DockPanel>
+                    <TextBlock DockPanel.Dock="Top" Text="Live preview" FontWeight="Bold"
+                               FontSize="15" Margin="0,0,0,8" />
+
+                    <!-- Action buttons -->
+                    <StackPanel DockPanel.Dock="Bottom" Spacing="6" Margin="0,10,0,0">
+                        <Grid ColumnDefinitions="*,6,*">
+                            <Button Grid.Column="0" Content="↶ Undo" HorizontalAlignment="Stretch"
+                                    IsEnabled="{Binding CanUndo}" Command="{Binding UndoCommand}" />
+                            <Button Grid.Column="2" Content="↷ Redo" HorizontalAlignment="Stretch"
+                                    IsEnabled="{Binding CanRedo}" Command="{Binding RedoCommand}" />
+                        </Grid>
+                        <Grid ColumnDefinitions="*,6,*">
+                            <Button Grid.Column="0" Content="💾 Save" HorizontalAlignment="Stretch"
+                                    Command="{Binding SaveCommand}" />
+                            <Button Grid.Column="2" Content="🖥 Apply" HorizontalAlignment="Stretch"
+                                    IsEnabled="{Binding CanApply}"
+                                    Command="{Binding ApplyCommand}" />
+                        </Grid>
+                        <Grid ColumnDefinitions="*,6,*">
+                            <Button Grid.Column="0" Content="🖼 Preview.png" HorizontalAlignment="Stretch"
+                                    Command="{Binding GeneratePreviewCommand}" />
+                            <Button Grid.Column="2" Content="📦 Export" HorizontalAlignment="Stretch"
+                                    Command="{Binding ExportCommand}" />
+                        </Grid>
+                        <Button Content="📷 Upload preview image…" HorizontalAlignment="Stretch"
+                                Command="{Binding SetPreviewImageCommand}" />
+                    </StackPanel>
+
+                    <!-- The preview mock (rendered to preview.png) -->
+                    <Border Name="PreviewRoot" CornerRadius="8" ClipToBounds="True"
+                            Background="{Binding Preview.Background}" Padding="0"
+                            VerticalAlignment="Top">
+                        <StackPanel>
+                            <!-- Waybar strip -->
+                            <Border Background="{Binding Preview.Background}" Padding="10,6"
+                                    BorderBrush="#22ffffff" BorderThickness="0,0,0,1">
+                                <Grid ColumnDefinitions="Auto,*,Auto">
+                                    <TextBlock Grid.Column="0" Text="1 2 3 4"
+                                               Foreground="{Binding Preview.Foreground}" FontSize="12" />
+                                    <TextBlock Grid.Column="1" Text="omarchy"
+                                               HorizontalAlignment="Center"
+                                               Foreground="{Binding Preview.Accent}"
+                                               FontWeight="Bold" FontSize="12" />
+                                    <TextBlock Grid.Column="2" Text="  12:00"
+                                               Foreground="{Binding Preview.Foreground}" FontSize="12" />
+                                </Grid>
+                            </Border>
+
+                            <!-- Terminal mock -->
+                            <Border Background="{Binding Preview.Background}" Padding="12" MinHeight="180">
+                                <StackPanel Spacing="3">
+                                    <StackPanel Orientation="Horizontal" Spacing="6">
+                                        <TextBlock Text="$" Foreground="{Binding Preview.Accent}"
+                                                   FontFamily="monospace" />
+                                        <TextBlock Text="omarchy theme set" FontFamily="monospace"
+                                                   Foreground="{Binding Preview.Foreground}" />
+                                        <Border Width="8" Height="16" Background="{Binding Preview.Cursor}" />
+                                    </StackPanel>
+                                    <Border Background="{Binding Preview.SelectionBackground}"
+                                            HorizontalAlignment="Left" Padding="2,0" CornerRadius="2">
+                                        <TextBlock Text="selected text" FontFamily="monospace"
+                                                   Foreground="{Binding Preview.SelectionForeground}" />
+                                    </Border>
+                                    <TextBlock Text="The quick brown fox jumps over the lazy dog."
+                                               FontFamily="monospace"
+                                               Foreground="{Binding Preview.Foreground}"
+                                               TextWrapping="Wrap" Margin="0,4,0,6" />
+
+                                    <!-- 16 ANSI swatches -->
+                                    <ItemsControl ItemsSource="{Binding Preview.Ansi}">
+                                        <ItemsControl.ItemsPanel>
+                                            <ItemsPanelTemplate>
+                                                <UniformGrid Columns="8" />
+                                            </ItemsPanelTemplate>
+                                        </ItemsControl.ItemsPanel>
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <Border Height="22" Margin="1" CornerRadius="3"
+                                                        Background="{Binding}" />
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </StackPanel>
+                            </Border>
+                        </StackPanel>
+                    </Border>
+                </DockPanel>
+            </Border>
+        </Grid>
+    </DockPanel>
+</Window>

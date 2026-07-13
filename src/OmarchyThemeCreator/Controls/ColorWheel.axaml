@@ -1,0 +1,54 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="OmarchyThemeCreator.Controls.ColorWheel">
+    <!-- Fixed square canvas; all geometry is positioned from code-behind against the actual size. -->
+    <Canvas x:Name="Root" Background="Transparent" Width="280" Height="280">
+
+        <!-- Hue ring: a stroked ellipse whose stroke is the full-spectrum conic gradient.
+             Stroking at radius = midR with thickness = ringT paints the band [innerR, outerR]. -->
+        <Ellipse x:Name="Ring" Fill="{x:Null}">
+            <Ellipse.Stroke>
+                <ConicGradientBrush>
+                    <GradientStop Offset="0" Color="#FF0000" />
+                    <GradientStop Offset="0.1667" Color="#FFFF00" />
+                    <GradientStop Offset="0.3333" Color="#00FF00" />
+                    <GradientStop Offset="0.5" Color="#00FFFF" />
+                    <GradientStop Offset="0.6667" Color="#0000FF" />
+                    <GradientStop Offset="0.8333" Color="#FF00FF" />
+                    <GradientStop Offset="1" Color="#FF0000" />
+                </ConicGradientBrush>
+            </Ellipse.Stroke>
+        </Ellipse>
+
+        <!-- Saturation/Value field: base hue, then white->transparent (saturation, L->R),
+             then transparent->black (value, T->B). Rounded corners read as a soft disc. -->
+        <Border x:Name="SvArea" CornerRadius="8" ClipToBounds="True">
+            <Panel>
+                <Rectangle x:Name="SvBase" />
+                <Rectangle>
+                    <Rectangle.Fill>
+                        <LinearGradientBrush StartPoint="0%,0%" EndPoint="100%,0%">
+                            <GradientStop Offset="0" Color="#FFFFFFFF" />
+                            <GradientStop Offset="1" Color="#00FFFFFF" />
+                        </LinearGradientBrush>
+                    </Rectangle.Fill>
+                </Rectangle>
+                <Rectangle>
+                    <Rectangle.Fill>
+                        <LinearGradientBrush StartPoint="0%,0%" EndPoint="0%,100%">
+                            <GradientStop Offset="0" Color="#00000000" />
+                            <GradientStop Offset="1" Color="#FF000000" />
+                        </LinearGradientBrush>
+                    </Rectangle.Fill>
+                </Rectangle>
+            </Panel>
+        </Border>
+
+        <!-- Selection thumbs: hollow rings so the color shows through. Not hit-testable so drags
+             land on the ring/field underneath. -->
+        <Ellipse x:Name="HueThumb" Fill="{x:Null}" Stroke="White" StrokeThickness="3"
+                 IsHitTestVisible="False" />
+        <Ellipse x:Name="SvThumb" Fill="{x:Null}" Stroke="White" StrokeThickness="3"
+                 IsHitTestVisible="False" />
+    </Canvas>
+</UserControl>

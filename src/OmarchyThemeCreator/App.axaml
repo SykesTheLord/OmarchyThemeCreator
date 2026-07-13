@@ -1,0 +1,32 @@
+<Application xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:conv="using:OmarchyThemeCreator"
+             x:Class="OmarchyThemeCreator.App"
+             RequestedThemeVariant="Dark">
+
+    <Application.Resources>
+        <conv:ColorToBrushConverter x:Key="ColorToBrush" />
+        <conv:PathToFileNameConverter x:Key="PathToFileName" />
+        <conv:HexToBrushConverter x:Key="HexToBrush" />
+        <conv:SwatchSelectionBrushConverter x:Key="SwatchSelectionBrush" />
+
+        <!-- App-chrome brushes. These defaults preserve the built-in dark look; AppThemeSync
+             overwrites them at runtime to match the live Omarchy desktop theme. Consumed via
+             DynamicResource in MainWindow.axaml so updates re-render live. -->
+        <SolidColorBrush x:Key="AppBackgroundBrush" Color="#141414" />
+        <SolidColorBrush x:Key="AppSurfaceBrush" Color="#1c1c1c" />
+        <SolidColorBrush x:Key="AppSurfaceAltBrush" Color="#161616" />
+        <SolidColorBrush x:Key="AppBorderBrush" Color="#444444" />
+        <SolidColorBrush x:Key="AppForegroundBrush" Color="#e0e0e0" />
+        <SolidColorBrush x:Key="AppMutedBrush" Color="#999999" />
+        <SolidColorBrush x:Key="AppAccentBrush" Color="#7aa2f7" />
+        <SolidColorBrush x:Key="AppAccentForegroundBrush" Color="#111111" />
+        <SolidColorBrush x:Key="AppSelectionBrush" Color="#7aa2f7" />
+        <SolidColorBrush x:Key="AppSelectionForegroundBrush" Color="#1a1b26" />
+        <SolidColorBrush x:Key="AppDangerBrush" Color="#d16c6c" />
+    </Application.Resources>
+
+    <Application.Styles>
+        <FluentTheme />
+    </Application.Styles>
+</Application>

@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Name=Omarchy Theme Creator
+GenericName=Theme Editor
+Comment=Create and edit Omarchy themes with a live preview
+Exec=omarchy-theme-creator
+Icon=omarchy-theme-creator
+Terminal=false
+Categories=Utility;Graphics;DesktopSettings;
+Keywords=omarchy;theme;colors;wallpaper;
+StartupNotify=true

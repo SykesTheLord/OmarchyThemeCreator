@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#24283b"/>
+      <stop offset="1" stop-color="#16161e"/>
+    </linearGradient>
+  </defs>
+
+  <!-- App tile -->
+  <rect x="8" y="8" width="240" height="240" rx="52" fill="url(#bg)"/>
+  <rect x="8.5" y="8.5" width="239" height="239" rx="51.5" fill="none"
+        stroke="#ffffff" stroke-opacity="0.06" stroke-width="1"/>
+
+  <!-- Fanned palette swatches (Tokyo Night colors), pivoting at bottom center -->
+  <g stroke="#000000" stroke-opacity="0.18" stroke-width="1.5">
+    <rect x="101" y="52" width="54" height="150" rx="16" fill="#f7768e" transform="rotate(-36 128 210)"/>
+    <rect x="101" y="52" width="54" height="150" rx="16" fill="#e0af68" transform="rotate(-18 128 210)"/>
+    <rect x="101" y="52" width="54" height="150" rx="16" fill="#9ece6a" transform="rotate(0 128 210)"/>
+    <rect x="101" y="52" width="54" height="150" rx="16" fill="#7aa2f7" transform="rotate(18 128 210)"/>
+    <rect x="101" y="52" width="54" height="150" rx="16" fill="#bb9af7" transform="rotate(36 128 210)"/>
+  </g>
+
+  <!-- Highlight caps on each swatch -->
+  <g fill="#ffffff" fill-opacity="0.28">
+    <circle cx="128" cy="78" r="9" transform="rotate(-36 128 210)"/>
+    <circle cx="128" cy="78" r="9" transform="rotate(-18 128 210)"/>
+    <circle cx="128" cy="78" r="9" transform="rotate(0 128 210)"/>
+    <circle cx="128" cy="78" r="9" transform="rotate(18 128 210)"/>
+    <circle cx="128" cy="78" r="9" transform="rotate(36 128 210)"/>
+  </g>
+</svg>

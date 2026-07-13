@@ -1,0 +1,39 @@
+# Build output
+bin/
+obj/
+dist/
+publish/
+*.binlog
+
+# .NET / IDE
+*.user
+*.suo
+.vs/
+.vscode/
+.idea/
+*.DotSettings.user
+
+# Packaging output
+packaging/pkg/
+packaging/src/
+packaging/*.pkg.tar.zst
+packaging/*.tar.gz
+
+# Local test theme exports
+/omarchy-*-theme/
+
+# OS
+.DS_Store
+
+# Logs (Serilog writes to $XDG_STATE_HOME, but guard against stray local logs)
+*.log
+logs/
+
+# Obsidian vault workspace cache (keep docs/ notes, ignore per-machine UI state)
+**/.obsidian/workspace.json
+**/.obsidian/workspace-mobile.json
+**/.obsidian/cache
+
+# Personal Claude Code notes
+CLAUDE.local.md
+.claude

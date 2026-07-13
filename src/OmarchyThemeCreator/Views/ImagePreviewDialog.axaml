@@ -1,0 +1,15 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="OmarchyThemeCreator.Views.ImagePreviewDialog"
+        Width="900" Height="620"
+        WindowStartupLocation="CenterOwner"
+        Background="#1c1c1c"
+        Title="Preview">
+    <DockPanel>
+        <TextBlock x:Name="Caption" DockPanel.Dock="Bottom" Margin="12,6,12,10"
+                   Foreground="#8a8a8a" FontSize="12" HorizontalAlignment="Center"
+                   Text="Click the image or press Esc to close" />
+        <Image x:Name="PreviewImage" Stretch="Uniform" Margin="8"
+               PointerPressed="OnClose" />
+    </DockPanel>
+</Window>

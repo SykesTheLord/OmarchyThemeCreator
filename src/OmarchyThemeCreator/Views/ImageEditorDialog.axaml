@@ -1,0 +1,84 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:OmarchyThemeCreator.ViewModels"
+        x:Class="OmarchyThemeCreator.Views.ImageEditorDialog"
+        x:DataType="vm:ImageEditorViewModel"
+        Width="880" Height="580"
+        MinWidth="720" MinHeight="480"
+        WindowStartupLocation="CenterOwner"
+        Background="#1c1c1c"
+        Title="Edit wallpaper">
+    <Grid ColumnDefinitions="*,280" Margin="14">
+        <!-- Live preview -->
+        <Border Grid.Column="0" CornerRadius="6" ClipToBounds="True"
+                Background="#111111" BorderBrush="#333333" BorderThickness="1"
+                Margin="0,0,14,0">
+            <Image Source="{Binding Preview}" Stretch="Uniform" Margin="8" />
+        </Border>
+
+        <!-- Controls -->
+        <DockPanel Grid.Column="1">
+            <TextBlock DockPanel.Dock="Top" Text="Edit wallpaper" FontWeight="Bold"
+                       FontSize="15" Foreground="#e8e8e8" Margin="0,0,0,4" />
+            <TextBlock DockPanel.Dock="Top" TextWrapping="Wrap" Foreground="#8a8a8a" FontSize="11"
+                       Margin="0,0,0,12"
+                       Text="Adjust or pick a preset. Saving overwrites this background in place." />
+
+            <!-- Action buttons pinned to the bottom -->
+            <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal"
+                        HorizontalAlignment="Right" Spacing="8" Margin="0,12,0,0">
+                <Button x:Name="CancelButton" Content="Cancel" Click="OnCancel" />
+                <Button x:Name="SaveButton" Content="Save" Click="OnSave"
+                        Foreground="#ffffff" Background="#3676a3" />
+            </StackPanel>
+
+            <ScrollViewer HorizontalScrollBarVisibility="Disabled">
+                <StackPanel Spacing="10">
+                    <TextBlock Text="Presets" Foreground="#c8c8c8" FontSize="12" />
+                    <ItemsControl ItemsSource="{Binding PresetNames}" x:CompileBindings="False">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <WrapPanel />
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Button Content="{Binding}" Margin="2" FontSize="11"
+                                        Command="{Binding $parent[ItemsControl].DataContext.ApplyPresetCommand}"
+                                        CommandParameter="{Binding}" />
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+
+                    <Grid ColumnDefinitions="72,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto"
+                          Margin="0,4,0,0">
+                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Brightness" FontSize="11"
+                                   VerticalAlignment="Center" Foreground="#c8c8c8" />
+                        <Slider Grid.Row="0" Grid.Column="1" Minimum="0.3" Maximum="2"
+                                Value="{Binding Brightness}" />
+                        <TextBlock Grid.Row="1" Grid.Column="0" Text="Contrast" FontSize="11"
+                                   VerticalAlignment="Center" Foreground="#c8c8c8" />
+                        <Slider Grid.Row="1" Grid.Column="1" Minimum="0.3" Maximum="2"
+                                Value="{Binding Contrast}" />
+                        <TextBlock Grid.Row="2" Grid.Column="0" Text="Saturation" FontSize="11"
+                                   VerticalAlignment="Center" Foreground="#c8c8c8" />
+                        <Slider Grid.Row="2" Grid.Column="1" Minimum="0" Maximum="2"
+                                Value="{Binding Saturation}" />
+                        <TextBlock Grid.Row="3" Grid.Column="0" Text="Blur" FontSize="11"
+                                   VerticalAlignment="Center" Foreground="#c8c8c8" />
+                        <Slider Grid.Row="3" Grid.Column="1" Minimum="0" Maximum="10"
+                                Value="{Binding Blur}" />
+                        <TextBlock Grid.Row="4" Grid.Column="0" Text="Vignette" FontSize="11"
+                                   VerticalAlignment="Center" Foreground="#c8c8c8" />
+                        <Slider Grid.Row="4" Grid.Column="1" Minimum="0" Maximum="1"
+                                Value="{Binding Vignette}" />
+                        <TextBlock Grid.Row="5" Grid.Column="0" Text="Grain" FontSize="11"
+                                   VerticalAlignment="Center" Foreground="#c8c8c8" />
+                        <Slider Grid.Row="5" Grid.Column="1" Minimum="0" Maximum="1"
+                                Value="{Binding Grain}" />
+                    </Grid>
+                </StackPanel>
+            </ScrollViewer>
+        </DockPanel>
+    </Grid>
+</Window>

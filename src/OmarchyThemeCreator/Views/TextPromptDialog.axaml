@@ -1,0 +1,25 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="OmarchyThemeCreator.Views.TextPromptDialog"
+        Width="440" SizeToContent="Height"
+        CanResize="False"
+        WindowStartupLocation="CenterOwner"
+        Background="#1c1c1c"
+        Title="Name">
+    <StackPanel Margin="18" Spacing="14">
+        <TextBlock x:Name="TitleText" FontWeight="Bold" FontSize="15" Foreground="#e8e8e8" />
+        <Border x:Name="PreviewBorder" IsVisible="False"
+                CornerRadius="4" ClipToBounds="True" Background="#111111"
+                BorderBrush="#333333" BorderThickness="1"
+                HorizontalAlignment="Stretch" Height="200">
+            <Image x:Name="PreviewImage" Stretch="Uniform" />
+        </Border>
+        <TextBlock x:Name="MessageText" TextWrapping="Wrap" Foreground="#c8c8c8" />
+        <TextBox x:Name="InputBox" Watermark="Background name" />
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8">
+            <Button x:Name="CancelButton" Content="Skip" Click="OnCancel" />
+            <Button x:Name="ConfirmButton" Content="Save name" Click="OnConfirm"
+                    Foreground="#ffffff" Background="#3676a3" />
+        </StackPanel>
+    </StackPanel>
+</Window>
