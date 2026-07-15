@@ -50,6 +50,7 @@ DI container. Every palette change flows through one choke point, the
 - [[11-Color-Picker-and-ColorWheel]] — the custom HSV color wheel control.
 - [[12-Logging-and-Diagnostics]] — Serilog setup and crash handling.
 - [[13-Build-and-Packaging]] — single-file publish, AUR/Makefile packaging.
+- [[14-Testing]] — the xUnit suite (unit + integration), the `$HOME` isolation seam.
 
 ## Reference
 

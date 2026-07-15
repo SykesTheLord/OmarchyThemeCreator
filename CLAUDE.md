@@ -10,9 +10,12 @@ Omarchy Theme Creator is a Linux-native GUI (**.NET 10 + Avalonia 11.2**) for au
 - **Build:** `dotnet build src/OmarchyThemeCreator/OmarchyThemeCreator.csproj`
 - **Run:** `dotnet run --project src/OmarchyThemeCreator/OmarchyThemeCreator.csproj`
 - **Publish single binary:** `bash packaging/build.sh` → `dist/omarchy-theme-creator`
-- **No test suite exists.** After code changes, run `dotnet build` and fix compile errors
-  before finishing. For UI changes, a brief `dotnet run` catches runtime XAML/binding errors
-  that compile cleanly.
+- **Test:** `dotnet test` (xUnit suite in `tests/OmarchyThemeCreator.Tests/`; see
+  `docs/14-Testing.md`). Pure logic belongs in `Services/`/`Models/` partly so it stays
+  unit-testable without a running Avalonia app; filesystem services are tested against a redirected
+  `$HOME` (`Support/TempHome`). After code changes, run `dotnet build` (fix compile errors) and
+  `dotnet test`. For UI changes, a brief `dotnet run` still catches runtime XAML/binding errors that
+  compile cleanly.
 
 ## Architecture
 

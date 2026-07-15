@@ -143,6 +143,7 @@ sequenceDiagram
     TR->>TR: assert under UserThemesDir (create if new)
     TR->>CT: Serialize(colors) → colors.toml
     TR->>FS: write colors.toml, light.mode?, icons.theme?
+    TR->>FS: delete stale colour-derived configs (btop.theme, …)
     TR-->>VM: saved path
     VM->>VM: re-point CurrentWallpapers, RefreshThemes()
 ```
@@ -150,3 +151,23 @@ sequenceDiagram
 The background list saved here comes from
 [[08-Wallpaper-Tools|CurrentWallpapersViewModel.Items]], the single source of truth for the open
 theme's wallpapers.
+
+### Stripping colour-derived configs on save
+
+`Save` writes `colors.toml` and then **deletes any colour-derived config files** the theme folder
+carries (`ThemeRepository.TemplatedThemeFiles`: `btop.theme`, `alacritty.toml`, `foot.ini`,
+`kitty.conf`, `ghostty.conf`, `mako.ini`, `swayosd.css`, `walker.css`, `hyprland.conf`,
+`hyprlock.conf`).
+
+These files are things Omarchy generates from `colors.toml` via its template engine
+(`$OMARCHY_PATH/default/themed/*.tpl`, run by `omarchy-theme-set-templates`). The catch is that
+`omarchy-theme-set` only templates a file **when the theme doesn't already ship one** — a physical
+copy in the theme folder wins verbatim and `colors.toml` is ignored for that app. Cloning a built-in
+(`Clone` copies *every* file) drags along its hand-authored `btop.theme` etc., so without this step
+an edited palette would land in `colors.toml` while btop kept the **original** theme's colours. By
+removing them, we hand ownership back to Omarchy's template engine, which regenerates them from the
+palette we just wrote.
+
+The list deliberately **excludes** files that can carry structural (non-colour) customisation a
+theme author wrote by hand — `waybar.css`, `helix.toml`, `obsidian.css` — so those are preserved
+rather than silently discarded.

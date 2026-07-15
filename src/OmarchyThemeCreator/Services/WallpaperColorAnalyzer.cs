@@ -63,7 +63,7 @@ public sealed class WallpaperColorAnalyzer
     /// </summary>
     public ImageColors Analyze(byte[] imageBytes)
     {
-        using SKBitmap? decoded = SKBitmap.Decode(imageBytes);
+        using SKBitmap? decoded = TryDecode(imageBytes);
         if (decoded is null)
         {
             Log.Debug("Analyze: could not decode {Bytes}-byte image", imageBytes.Length);
@@ -170,6 +170,25 @@ public sealed class WallpaperColorAnalyzer
             if (best <= ThemeMatchDistanceSq) covered += wc.Weight;
         }
         return covered;
+    }
+
+    /// <summary>
+    /// Decode image bytes, returning null for anything undecodable. SkiaSharp is inconsistent here:
+    /// <see cref="SKBitmap.Decode(byte[])"/> returns null for some malformed inputs but throws for
+    /// others (e.g. it throws <see cref="ArgumentNullException"/> in SkiaSharp 2.88 when no codec can
+    /// be created for garbage bytes). Collapsing both to null lets <see cref="Analyze"/> honour its
+    /// "undecodable → empty" contract.
+    /// </summary>
+    private static SKBitmap? TryDecode(byte[] imageBytes)
+    {
+        try
+        {
+            return SKBitmap.Decode(imageBytes);
+        }
+        catch (Exception)
+        {
+            return null;
+        }
     }
 
     private static int NearestIndex(int r, int g, int b)

@@ -72,6 +72,16 @@ make -C packaging build
 This publishes a single self-contained `linux-x64` binary to `dist/`. (`make -C packaging
 build` just wraps `bash packaging/build.sh`, which you can also run directly.)
 
+### Tests
+
+```bash
+dotnet test
+```
+
+Runs the xUnit suite (unit + integration) in `tests/OmarchyThemeCreator.Tests/`. The tests are
+self-contained — filesystem-touching services run against a redirected `$HOME`, so your real
+`~/.config/omarchy` is never touched. See [`docs/14-Testing.md`](docs/14-Testing.md) for details.
+
 ## Install
 
 ### From the AUR (once published)

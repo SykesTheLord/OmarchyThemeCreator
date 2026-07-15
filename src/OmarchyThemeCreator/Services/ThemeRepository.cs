@@ -25,6 +25,19 @@ public sealed class ThemeRepository
     private static readonly string[] ImageExtensions =
         { ".jpg", ".jpeg", ".png", ".webp", ".gif", ".bmp" };
 
+    // Config files Omarchy generates from colors.toml via its template engine
+    // (<c>$OMARCHY_PATH/default/themed/*.tpl</c>, applied by <c>omarchy-theme-set-templates</c>).
+    // These are pure colour mappings, so they can always be regenerated from the palette. A cloned
+    // built-in brings its own hand-authored copies along; because omarchy-theme-set only templates a
+    // file when the theme doesn't already ship one, those stale copies would shadow our edited
+    // colors.toml and btop/terminals would keep the *original* theme's colours. We strip them on
+    // Save so Omarchy re-templates them from the current palette. Deliberately excludes files that
+    // can carry structural (non-colour) customisation a theme author wrote by hand —
+    // waybar.css, helix.toml, obsidian.css — which we must not silently discard.
+    private static readonly string[] TemplatedThemeFiles =
+        { "btop.theme", "alacritty.toml", "foot.ini", "kitty.conf", "ghostty.conf",
+          "mako.ini", "swayosd.css", "walker.css", "hyprland.conf", "hyprlock.conf" };
+
     public string UserThemesDir { get; }
     public string SystemThemesDir { get; }
 
@@ -128,6 +141,20 @@ public sealed class ThemeRepository
         string colorsPath = Path.Combine(dir, "colors.toml");
         ColorsTomlService.Save(colorsPath, theme.Colors);
         Log.Debug("Wrote colors.toml ({Bytes} bytes) to {Path}", FileLength(colorsPath), colorsPath);
+
+        // Remove any colour-derived config files (btop.theme, terminal themes, …) so Omarchy
+        // regenerates them from the palette we just wrote. Without this, a stale copy cloned from a
+        // built-in shadows colors.toml and the app's palette edits never reach btop. See
+        // TemplatedThemeFiles for why the list is what it is.
+        foreach (string derived in TemplatedThemeFiles)
+        {
+            string derivedPath = Path.Combine(dir, derived);
+            if (File.Exists(derivedPath))
+            {
+                File.Delete(derivedPath);
+                Log.Debug("Removed stale derived config {File} so Omarchy re-templates it from colors.toml", derived);
+            }
+        }
 
         string iconsPath = Path.Combine(dir, "icons.theme");
         if (!string.IsNullOrWhiteSpace(theme.IconTheme))
